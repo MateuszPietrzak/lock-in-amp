@@ -1,6 +1,5 @@
 use iced::{
-    Element,
-    widget::{button, column, text},
+    Element, Length::Fill, widget::{button, column, container, text, text_input}
 };
 
 pub fn main() -> iced::Result {
@@ -22,12 +21,14 @@ pub fn main() -> iced::Result {
 #[derive(Default)]
 struct App {
     value: i64,
+    text: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 enum Message {
     Increment,
     Decrement,
+    TextContentChanged(String),
 }
 
 impl App {
@@ -39,15 +40,23 @@ impl App {
             Message::Decrement => {
                 self.value -= 1;
             }
+            Message::TextContentChanged(str) => {
+                self.text = str;
+            },
         }
     }
 
     fn view(&self) -> Element<'_, Message> {
-        column![
-            button("+").on_press(Message::Increment),
-            text(self.value),
-            button("-").on_press(Message::Decrement),
-        ]
+        container(
+            column![
+                button("+").on_press(Message::Increment),
+                text(self.value),
+                button("-").on_press(Message::Decrement),
+                text_input("Type something here", &self.text).on_input(Message::TextContentChanged),
+            ]
+            .spacing(10),
+        )
+        .padding(10)
         .into()
     }
 }
