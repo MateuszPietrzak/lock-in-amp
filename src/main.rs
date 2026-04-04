@@ -1,4 +1,5 @@
 mod app;
+mod input_signal_plot;
 
 use crate::app::App;
 
