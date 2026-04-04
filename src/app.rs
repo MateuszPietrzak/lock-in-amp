@@ -32,9 +32,7 @@ pub enum Message {
 impl App {
     pub fn update(&mut self, message: Message) {
         match message {
-            Message::AddMorePoints => {
-                self.input_signal_plot.add_more_points();
-            }
+            Message::AddMorePoints => self.input_signal_plot.add_more_points(),
             Message::PlotMessage(plot_ui_message) => self.input_signal_plot.update(plot_ui_message),
         }
     }
