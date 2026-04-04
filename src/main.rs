@@ -1,10 +1,12 @@
 use iced::widget::button;
 use iced::widget::column;
 use iced::widget::text;
+use iced_plot::LineStyle;
 use iced_plot::PlotUiMessage;
 use iced_plot::PlotWidget;
 use iced_plot::Series;
-use iced_plot::{MarkerStyle, PlotWidgetBuilder};
+use iced_plot::ShapeId;
+use iced_plot::PlotWidgetBuilder;
 
 use iced::{Color, Element};
 
@@ -26,34 +28,60 @@ pub fn main() -> iced::Result {
 }
 
 struct App {
-    value: i64,
+    series_id: ShapeId,
     plot_widget: PlotWidget,
+    points: u64,
+}
+
+impl App {
+    fn new() -> Self {
+        let positions = (0..500)
+            .map(|i| {
+                let x = (i as f64) / 30.;
+                [x, x.sin()]
+            })
+            .collect::<Vec<[f64; 2]>>();
+
+        let series = Series::line_only(positions, LineStyle::Solid)
+            .with_color(Color::from_rgb(0.2, 0.6, 1.0));
+
+        let plot_widget = PlotWidgetBuilder::new()
+            .add_series(series.clone())
+            .build()
+            .unwrap();
+
+        Self {
+            series_id: series.id,
+            plot_widget,
+            points: 500,
+        }
+    }
 }
 
 impl Default for App {
     fn default() -> Self {
-        Self {
-            value: 0,
-            plot_widget: build_plot(),
-        }
+        App::new()
     }
 }
 
 #[derive(Debug, Clone)]
 enum Message {
-    Increment,
-    Decrement,
+    AddMorePoints,
     PlotMessage(PlotUiMessage),
 }
 
 impl App {
     fn update(&mut self, message: Message) {
         match message {
-            Message::Increment => {
-                self.value += 1;
-            }
-            Message::Decrement => {
-                self.value -= 1;
+            Message::AddMorePoints => {
+                self.plot_widget.update_series(&self.series_id, |series| {
+                    for i in self.points..(self.points + 50) {
+                        let x = (i as f64) / 30.;
+                        series.positions.push([x, x.sin()]);
+                    }
+
+                    self.points += 50;
+                }).unwrap();
             }
             Message::PlotMessage(plot_ui_message) => self.plot_widget.update(plot_ui_message),
         }
@@ -63,25 +91,11 @@ impl App {
         let plot_widget = self.plot_widget.view().map(Message::PlotMessage);
 
         column![
-            button("+").on_press(Message::Increment),
-            text(self.value),
-            button("-").on_press(Message::Decrement),
+            button("More!").on_press(Message::AddMorePoints),
             plot_widget,
-        ].spacing(10).padding(10).into()
+        ]
+        .spacing(10)
+        .padding(10)
+        .into()
     }
-}
-
-fn build_plot() -> PlotWidget {
-    let positions = (0..10)
-        .map(|x| [x as f64, (x * x) as f64])
-        .collect::<Vec<[f64; 2]>>();
-
-    let series = Series::markers_only(positions, MarkerStyle::circle(1.0))
-        .with_label("2d Gaussian scatter - 5M points")
-        .with_color(Color::from_rgb(0.2, 0.6, 1.0));
-
-    PlotWidgetBuilder::new()
-        .add_series(series.clone())
-        .build()
-        .unwrap()
 }
