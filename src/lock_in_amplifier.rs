@@ -1,25 +1,19 @@
 use crate::input_signal_gen::make_sin;
+use crate::lock_in_settings::LockInSettings;
 
-#[derive(Debug, Clone, Copy)]
-pub struct LockInSettings {
-    input_fs: f32,
-    ref_freq: f32,
-    lpf_tau: f32,
-    lpf_iir_order: i32
-}
 
 pub fn analyze(input_signal: &Vec<f32>, params: &LockInSettings) -> (Vec<f32>, Vec<f32>) {
     assert!(!input_signal.is_empty(), "No signal to analyze.");
 
-    let ref_i = make_sin(1.0, params.ref_freq, 0.0, params.input_fs, input_signal.len());
-    let ref_q = make_sin(1.0, params.ref_freq, 90.0, params.input_fs, input_signal.len());
+    let ref_i = make_sin(1.0, params.ref_freq, 0.0, params.fs, input_signal.len());
+    let ref_q = make_sin(1.0, params.ref_freq, 90.0, params.fs, input_signal.len());
 
     let mut mul_i: Vec<f32> =  input_signal.iter().zip(ref_i.iter()).map(|(&s, &r)| s * r).collect();
     let mut mul_q: Vec<f32> =  input_signal.iter().zip(ref_q.iter()).map(|(&s, &r)| s * r).collect();
 
     for _ in 0..params.lpf_iir_order {
-        apply_iir_lpf(&mut mul_i, params.lpf_tau, params.input_fs);
-        apply_iir_lpf(&mut mul_q, params.lpf_tau, params.input_fs);
+        apply_iir_lpf(&mut mul_i, params.lpf_tau, params.fs);
+        apply_iir_lpf(&mut mul_q, params.lpf_tau, params.fs);
     }
     
     let measured_ampl: Vec<f32> = mul_i.iter().zip(mul_q.iter()).map(|(&i, &q)| 2.0 * (i * i + q * q).sqrt()).collect();
