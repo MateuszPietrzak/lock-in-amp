@@ -4,6 +4,8 @@ use iced_plot::PlotWidget;
 use iced_plot::PlotWidgetBuilder;
 use iced_plot::Series;
 use iced_plot::ShapeId;
+use std::sync::Arc;
+
 
 use iced::{Color, Element};
 
@@ -37,16 +39,16 @@ impl InputSignalPlot {
         }
     }
 
-    pub fn add_more_points(&mut self) {
-        self.plot_widget
-            .update_series(&self.series_id, |series| {
-                for i in self.points..(self.points + 50) {
-                    let x = (i as f64) / 30.;
-                    series.positions.push([x, x.sin()]);
-                }
+    pub fn set_series(&mut self, input_signal: Arc<Vec<f32>>, input_time_axis: Arc<Vec<f32>>) {
 
-                self.points += 50;
-            })
+        let new_series : Vec<[f64; 2]> = input_time_axis
+        .iter()
+        .zip(input_signal.iter())
+        .map(|(&x, &y)| [x as f64, y as f64])
+        .collect();
+
+        self.plot_widget
+            .update_series(&self.series_id, |s| s.positions = new_series.clone())
             .unwrap();
     }
 
@@ -54,7 +56,7 @@ impl InputSignalPlot {
         self.plot_widget.update(message);
     }
 
-    pub fn view(&self) -> Element<'_, PlotUiMessage> {
+    pub fn view(&self) -> Element<PlotUiMessage> {
         self.plot_widget.view()
     }
 }

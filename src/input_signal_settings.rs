@@ -4,7 +4,7 @@ use iced::widget::text;
 
 use crate::parameter_input::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct InputSignalSettings {
     pub len_sec: f32,
     pub fs: f32,
@@ -141,7 +141,7 @@ impl InputSignalSettingsWidget {
             .map(InputSignalSettingsMessage::SigPhaseChanged);
 
         column![
-            text("INPUT SIGNAL SETTINGS").size(30),
+            text("INPUT SIGNAL SETTINGS").size(20),
             len_sec_input,
             fs_input,
             noise_ampl_input,

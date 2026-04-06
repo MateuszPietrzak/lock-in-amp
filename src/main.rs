@@ -2,6 +2,7 @@ mod app;
 mod input_signal_plot;
 mod parameter_input;
 mod input_signal_settings;
+mod input_signal_gen;
 
 use crate::app::App;
 

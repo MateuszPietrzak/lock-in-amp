@@ -2,27 +2,43 @@ use iced::Element;
 use iced::widget::button;
 use iced::widget::row;
 use iced_plot::PlotUiMessage;
+use std::sync::Arc;
 
+use crate::input_signal_gen::generate_input_time_axis;
 use crate::input_signal_plot::InputSignalPlot;
 use crate::input_signal_settings::{InputSignalSettingsWidget, InputSignalSettings, InputSignalSettingsMessage};
+use crate::input_signal_gen::generate_input_signal;
 
 pub struct App {
+    // widgets
     input_signal_plot: InputSignalPlot,
     input_signal_settings_widget: InputSignalSettingsWidget,
+
+    // states
+    input_signal: Arc<Vec<f32>>,
+    input_time_axis: Arc<Vec<f32>>,
 }
 
 impl App {
     fn new() -> Self {
-        Self {
-            input_signal_plot: InputSignalPlot::new(),
-            input_signal_settings_widget: InputSignalSettingsWidget::new(InputSignalSettings {
+
+        let default_settings = InputSignalSettings {
                 len_sec: 1.0,
                 fs: 500.0,
                 noise_ampl: 10.0,
                 sig_ampl: 1.0,
                 sig_freq: 10.0,
                 sig_phase_deg: 90.0,
-            })
+            };
+
+        let input_signal = generate_input_signal(default_settings);
+        let input_time_axis = generate_input_time_axis(default_settings);
+
+        Self {
+            input_signal_plot: InputSignalPlot::new(),
+            input_signal_settings_widget: InputSignalSettingsWidget::new(default_settings),
+            input_signal: Arc::new(input_signal),
+            input_time_axis: Arc::new(input_time_axis),
         }
     }
 }
@@ -35,7 +51,6 @@ impl Default for App {
 
 #[derive(Debug, Clone)]
 pub enum AppMessage {
-    AddMorePoints,
     PlotMessage(PlotUiMessage),
     InputParameterChangedMessage(InputSignalSettingsMessage),
 }
@@ -43,12 +58,17 @@ pub enum AppMessage {
 impl App {
     pub fn update(&mut self, message: AppMessage) {
         match message {
-            AppMessage::AddMorePoints => self.input_signal_plot.add_more_points(),
             AppMessage::PlotMessage(plot_ui_message) => self.input_signal_plot.update(plot_ui_message),
             AppMessage::InputParameterChangedMessage(param_changed_message) => {
                     
                 if let Some(new_settings) = self.input_signal_settings_widget.update(param_changed_message) {
                     println!("new settings received: {:?}", new_settings);
+
+                    // regenerate the signal
+                    self.input_signal = Arc::new(generate_input_signal(new_settings));
+                    self.input_time_axis = Arc::new(generate_input_time_axis(new_settings));
+
+                    self.input_signal_plot.set_series(Arc::clone(&self.input_signal), Arc::clone(&self.input_time_axis))
                 }
             }
         }
@@ -59,7 +79,6 @@ impl App {
         let input_settings_widget = self.input_signal_settings_widget.view().map(AppMessage::InputParameterChangedMessage);
         row![
             input_settings_widget,
-            button("More!").on_press(AppMessage::AddMorePoints),
             plot_widget,
         ]
         .spacing(10)
