@@ -4,6 +4,7 @@ mod parameter_input;
 mod input_signal_settings;
 mod input_signal_gen;
 mod lock_in_amplifier;
+mod lock_in_settings;
 
 use crate::app::App;
 
