@@ -69,6 +69,8 @@ impl App {
                     self.input_time_axis = Arc::new(generate_input_time_axis(new_settings));
 
                     self.input_signal_plot.set_series(Arc::clone(&self.input_signal), Arc::clone(&self.input_time_axis))
+                    
+                    
                 }
             }
         }

@@ -12,17 +12,11 @@ use iced::{Color, Element};
 pub struct InputSignalPlot {
     series_id: ShapeId,
     plot_widget: PlotWidget,
-    points: u64,
 }
 
 impl InputSignalPlot {
     pub fn new() -> Self {
-        let positions = (0..500)
-            .map(|i| {
-                let x = (i as f64) / 30.;
-                [x, x.sin()]
-            })
-            .collect::<Vec<[f64; 2]>>();
+        let positions = Vec::new();
 
         let series = Series::line_only(positions, LineStyle::Solid)
             .with_color(Color::from_rgb(0.2, 0.6, 1.0));
@@ -35,7 +29,6 @@ impl InputSignalPlot {
         Self {
             series_id: series.id,
             plot_widget,
-            points: 500,
         }
     }
 
