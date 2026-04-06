@@ -1,5 +1,7 @@
 mod app;
 mod input_signal_plot;
+mod parameter_input;
+mod input_signal_settings;
 
 use crate::app::App;
 
