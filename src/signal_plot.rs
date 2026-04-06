@@ -22,10 +22,12 @@ impl SignalPlot {
         let series = Series::line_only(positions, LineStyle::Solid)
             .with_color(Color::from_rgb(0.2, 0.6, 1.0));
 
-        let plot_widget = PlotWidgetBuilder::new()
+        let mut plot_widget = PlotWidgetBuilder::new()
             .add_series(series.clone())
             .build()
             .unwrap();
+
+        plot_widget.autoscale_on_updates(true);
 
         Self {
             series_id: series.id,

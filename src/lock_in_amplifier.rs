@@ -1,8 +1,9 @@
 use crate::input_signal_gen::make_sin;
 use crate::lock_in_settings::LockInSettings;
+use std::f32::consts::PI;
+use std::sync::Arc;
 
-
-pub fn analyze(input_signal: &Vec<f32>, params: &LockInSettings) -> (Vec<f32>, Vec<f32>) {
+pub fn analyze(input_signal: Arc<Vec<f32>>, params: &LockInSettings) -> (Vec<f32>, Vec<f32>) {
     assert!(!input_signal.is_empty(), "No signal to analyze.");
 
     let ref_i = make_sin(1.0, params.ref_freq, 0.0, params.fs, input_signal.len());
@@ -17,7 +18,7 @@ pub fn analyze(input_signal: &Vec<f32>, params: &LockInSettings) -> (Vec<f32>, V
     }
     
     let measured_ampl: Vec<f32> = mul_i.iter().zip(mul_q.iter()).map(|(&i, &q)| 2.0 * (i * i + q * q).sqrt()).collect();
-    let measured_phase: Vec<f32> = mul_i.iter().zip(mul_q.iter()).map(|(&i, &q)| (q).atan2(i)).collect();
+    let measured_phase: Vec<f32> = mul_i.iter().zip(mul_q.iter()).map(|(&i, &q)| (q).atan2(i) * 180.0 / PI).collect();
     
     (measured_ampl, measured_phase)
 }
@@ -32,7 +33,7 @@ fn apply_iir_lpf(y: &mut Vec<f32> , tau_s: f32, fs_hz: f32) {
     }
 }
 
-fn get_iir_settling_time_sec(order: i32, tau: f32) -> f32 {
+pub fn get_iir_settling_time_sec(order: i32, tau: f32) -> f32 {
     let multiplier = match order {
         1 => 4.6,
         2 => 6.6,

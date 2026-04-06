@@ -3,6 +3,7 @@ use iced::widget::column;
 use iced::widget::text;
 
 use crate::parameter_input::*;
+use crate::lock_in_amplifier::get_iir_settling_time_sec;
 
 #[derive(Debug, Clone, Copy)]
 pub struct LockInSettings {
@@ -17,6 +18,8 @@ pub struct LockInSettingsWidget {
     ref_freq_input: ParameterInput,
     lpf_tau_input: ParameterInput,
     lpf_iir_order_input: ParameterInput,
+
+    settling_time: f32,
 }
 
 #[derive(Debug, Clone)]
@@ -42,6 +45,7 @@ impl LockInSettingsWidget {
                 String::from("LPF Order [1-6]"),
                 default_settings.lpf_iir_order as f32,
             ),
+            settling_time: get_iir_settling_time_sec(default_settings.lpf_iir_order, default_settings.lpf_tau),
         }
     }
 
@@ -57,6 +61,7 @@ impl LockInSettingsWidget {
             LockInSettingsMessage::TauChanged(new_value) => {
                 if let Some(val) = self.lpf_tau_input.update(new_value) {
                     self.settings.lpf_tau = val;
+                    self.settling_time = get_iir_settling_time_sec(self.settings.lpf_iir_order, self.settings.lpf_tau);
                     return Some(self.settings.clone());
                 }
                 None
@@ -64,11 +69,16 @@ impl LockInSettingsWidget {
             LockInSettingsMessage::LpfOrderChanged(new_value) => {
                 if let Some(val) = self.lpf_iir_order_input.update(new_value) {
                     self.settings.lpf_iir_order = val as i32;
+                    self.settling_time = get_iir_settling_time_sec(self.settings.lpf_iir_order, self.settings.lpf_tau);
                     return Some(self.settings.clone());
                 }
                 None
             }
         }
+    }
+
+    pub fn set_fs(&mut self, new_fs: f32) {
+        self.settings.fs = new_fs;
     }
 
     pub fn view(&self) -> Element<LockInSettingsMessage> {
@@ -89,7 +99,8 @@ impl LockInSettingsWidget {
             text("LOCK-IN SETTINGS").size(20),
             ref_freq_input,
             lpf_tau_input,
-            lpf_iir_order_input
+            lpf_iir_order_input,
+            text(format!("Settling time [s]: {}", self.settling_time)).size(20),
         ]
         .into()
     }
