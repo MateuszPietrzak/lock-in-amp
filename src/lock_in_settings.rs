@@ -81,7 +81,7 @@ impl LockInSettingsWidget {
         self.settings.fs = new_fs;
     }
 
-    pub fn view(&self) -> Element<LockInSettingsMessage> {
+    pub fn view(&'_ self) -> Element<'_, LockInSettingsMessage> {
         let ref_freq_input = self
             .ref_freq_input
             .view()

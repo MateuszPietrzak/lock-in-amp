@@ -4,7 +4,6 @@ use iced_plot::PlotWidget;
 use iced_plot::PlotWidgetBuilder;
 use iced_plot::Series;
 use iced_plot::ShapeId;
-use std::sync::Arc;
 
 
 use iced::{Color, Element};
@@ -35,7 +34,7 @@ impl SignalPlot {
         }
     }
 
-    pub fn set_series(&mut self, signal: Arc<Vec<f32>>, time_axis: Arc<Vec<f32>>) {
+    pub fn set_series(&mut self, signal: &Vec<f32>, time_axis: &Vec<f32>) {
 
         let new_series : Vec<[f64; 2]> = time_axis
         .iter()
@@ -52,7 +51,7 @@ impl SignalPlot {
         self.plot_widget.update(message);
     }
 
-    pub fn view(&self) -> Element<PlotUiMessage> {
+    pub fn view(&'_ self) -> Element<'_, PlotUiMessage> {
         self.plot_widget.view()
     }
 }

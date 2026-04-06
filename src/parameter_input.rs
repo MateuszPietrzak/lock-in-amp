@@ -38,7 +38,7 @@ impl ParameterInput {
         }
     }
 
-    pub fn view(&self) -> Element<ParameterInputMessage> {
+    pub fn view(&'_ self) -> Element<'_, ParameterInputMessage> {
         column![
             text(&self.label),
             row![

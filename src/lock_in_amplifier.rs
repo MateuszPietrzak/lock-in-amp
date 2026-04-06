@@ -1,9 +1,8 @@
 use crate::input_signal_gen::make_sin;
 use crate::lock_in_settings::LockInSettings;
 use std::f32::consts::PI;
-use std::sync::Arc;
 
-pub fn analyze(input_signal: Arc<Vec<f32>>, params: &LockInSettings) -> (Vec<f32>, Vec<f32>) {
+pub fn analyze(input_signal: &Vec<f32>, params: &LockInSettings) -> (Vec<f32>, Vec<f32>) {
     assert!(!input_signal.is_empty(), "No signal to analyze.");
 
     let ref_i = make_sin(1.0, params.ref_freq, 0.0, params.fs, input_signal.len());

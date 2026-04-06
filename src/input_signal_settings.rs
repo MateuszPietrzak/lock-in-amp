@@ -114,7 +114,7 @@ impl InputSignalSettingsWidget {
         }
     }
 
-    pub fn view(&self) -> Element<InputSignalSettingsMessage> {
+    pub fn view(&'_ self) -> Element<'_, InputSignalSettingsMessage> {
         let len_sec_input = self
             .len_sec_input
             .view()

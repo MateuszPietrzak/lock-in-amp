@@ -1,8 +1,7 @@
 use iced::Element;
-use iced::widget::{button, text};
+use iced::widget::{text};
 use iced::widget::{row, column};
 use iced_plot::PlotUiMessage;
-use std::sync::Arc;
 
 use crate::input_signal_gen::generate_input_time_axis;
 use crate::signal_plot::SignalPlot;
@@ -20,10 +19,10 @@ pub struct App {
     measured_phase_plot_widget: SignalPlot,
 
     // states
-    input_signal: Arc<Vec<f32>>,
-    input_time_axis: Arc<Vec<f32>>,
-    output_ampl: Arc<Vec<f32>>,
-    output_phase: Arc<Vec<f32>>,
+    input_signal: Vec<f32>,
+    input_time_axis: Vec<f32>,
+    output_ampl: Vec<f32>,
+    output_phase: Vec<f32>,
 
     lockin_settings: LockInSettings
 }
@@ -53,13 +52,13 @@ impl App {
             input_signal_plot: SignalPlot::new(),
             input_signal_settings_widget: InputSignalSettingsWidget::new(default_input_settings),
             lock_in_settings_widget: LockInSettingsWidget::new(default_lockin_settings.clone()),
-            input_signal: Arc::new(input_signal),
-            input_time_axis: Arc::new(input_time_axis),
+            input_signal: input_signal,
+            input_time_axis: input_time_axis,
             measured_ampl_plot_widget: SignalPlot::new(),
             measured_phase_plot_widget: SignalPlot::new(),
             lockin_settings: default_lockin_settings,
-            output_ampl: Arc::new(Vec::<f32>::new()),
-            output_phase: Arc::new(Vec::<f32>::new()),
+            output_ampl: Vec::<f32>::new(),
+            output_phase: Vec::<f32>::new(),
         }
     }
 }
@@ -89,10 +88,10 @@ impl App {
                     println!("new input settings received: {:?}", new_settings);
 
                     // regenerate the signal
-                    self.input_signal = Arc::new(generate_input_signal(new_settings));
-                    self.input_time_axis = Arc::new(generate_input_time_axis(new_settings));
+                    self.input_signal = generate_input_signal(new_settings);
+                    self.input_time_axis = generate_input_time_axis(new_settings);
 
-                    self.input_signal_plot.set_series(Arc::clone(&self.input_signal), Arc::clone(&self.input_time_axis));
+                    self.input_signal_plot.set_series(&self.input_signal, &self.input_time_axis);
                     
                     // we want the lock-in fs to be linked to input fs, so we manually set it here as it might've changed
                     self.lock_in_settings_widget.set_fs(new_settings.fs);   
@@ -115,11 +114,11 @@ impl App {
     }
 
     fn reanalyze(&mut self) {
-        let (meas_ampl, meas_phase) = analyze(Arc::clone(&self.input_signal), &self.lockin_settings);
-        self.output_ampl = Arc::new(meas_ampl);
-        self.output_phase = Arc::new(meas_phase);
-        self.measured_ampl_plot_widget.set_series(Arc::clone(&self.output_ampl), Arc::clone(&self.input_time_axis));
-        self.measured_phase_plot_widget.set_series(Arc::clone(&self.output_phase), Arc::clone(&self.input_time_axis));
+        let (meas_ampl, meas_phase) = analyze(&self.input_signal, &self.lockin_settings);
+        self.output_ampl = meas_ampl;
+        self.output_phase = meas_phase;
+        self.measured_ampl_plot_widget.set_series(&self.output_ampl, &self.input_time_axis);
+        self.measured_phase_plot_widget.set_series(&self.output_phase, &self.input_time_axis);
     }
 
     pub fn view(&self) -> Element<'_, AppMessage> {
