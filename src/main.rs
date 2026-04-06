@@ -1,8 +1,9 @@
 mod app;
-mod input_signal_plot;
+mod signal_plot;
 mod parameter_input;
 mod input_signal_settings;
 mod input_signal_gen;
+mod lock_in_amplifier;
 
 use crate::app::App;
 

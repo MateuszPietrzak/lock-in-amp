@@ -9,14 +9,15 @@ use std::sync::Arc;
 
 use iced::{Color, Element};
 
-pub struct InputSignalPlot {
+pub struct SignalPlot {
     series_id: ShapeId,
     plot_widget: PlotWidget,
 }
 
-impl InputSignalPlot {
+impl SignalPlot {
     pub fn new() -> Self {
-        let positions = Vec::new();
+        let positions = vec![[0.0, 0.0]];
+        // ^ for some reason PlotWidget blows up with empty series so you know... {0.0, 0.0} point 
 
         let series = Series::line_only(positions, LineStyle::Solid)
             .with_color(Color::from_rgb(0.2, 0.6, 1.0));
@@ -32,11 +33,11 @@ impl InputSignalPlot {
         }
     }
 
-    pub fn set_series(&mut self, input_signal: Arc<Vec<f32>>, input_time_axis: Arc<Vec<f32>>) {
+    pub fn set_series(&mut self, signal: Arc<Vec<f32>>, time_axis: Arc<Vec<f32>>) {
 
-        let new_series : Vec<[f64; 2]> = input_time_axis
+        let new_series : Vec<[f64; 2]> = time_axis
         .iter()
-        .zip(input_signal.iter())
+        .zip(signal.iter())
         .map(|(&x, &y)| [x as f64, y as f64])
         .collect();
 

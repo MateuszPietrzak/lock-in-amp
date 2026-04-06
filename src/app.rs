@@ -5,13 +5,13 @@ use iced_plot::PlotUiMessage;
 use std::sync::Arc;
 
 use crate::input_signal_gen::generate_input_time_axis;
-use crate::input_signal_plot::InputSignalPlot;
+use crate::signal_plot::SignalPlot;
 use crate::input_signal_settings::{InputSignalSettingsWidget, InputSignalSettings, InputSignalSettingsMessage};
 use crate::input_signal_gen::generate_input_signal;
 
 pub struct App {
     // widgets
-    input_signal_plot: InputSignalPlot,
+    input_signal_plot: SignalPlot,
     input_signal_settings_widget: InputSignalSettingsWidget,
 
     // states
@@ -35,7 +35,7 @@ impl App {
         let input_time_axis = generate_input_time_axis(default_settings);
 
         Self {
-            input_signal_plot: InputSignalPlot::new(),
+            input_signal_plot: SignalPlot::new(),
             input_signal_settings_widget: InputSignalSettingsWidget::new(default_settings),
             input_signal: Arc::new(input_signal),
             input_time_axis: Arc::new(input_time_axis),
@@ -70,7 +70,7 @@ impl App {
 
                     self.input_signal_plot.set_series(Arc::clone(&self.input_signal), Arc::clone(&self.input_time_axis))
                     
-                    
+
                 }
             }
         }

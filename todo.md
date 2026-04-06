@@ -1,0 +1,5 @@
+-> change all f32 to f64
+-> remove 'set' button from parameter_input and add one button at the bottom of the column for submitting
+-> is there a better way to visualize the input signal? for example display sig and noise separately instead of their sum
+-> maybe add a confounding_freq noise component that better demos the functionality than just white noise; like separating 100hz sig from 110hz noise
+-> can plot auto normalize itself?
